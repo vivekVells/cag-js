@@ -52,10 +52,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/vivekvells/cag.git"
+    "url": "git+https://github.com/vivekvells/cag-js.git"
   },
   "bugs": {
-    "url": "https://github.com/vivekvells/cag/issues"
+    "url": "https://github.com/vivekvells/cag-js/issues"
   },
-  "homepage": "https://github.com/vivekvells/cag#readme"
+  "homepage": "https://github.com/vivekvells/cag-js#readme"
 }
