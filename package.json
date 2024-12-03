@@ -1,5 +1,5 @@
 {
-  "name": "cag",
+  "name": "cag-js",
   "version": "1.0.0",
   "description": "Chunked Augmented Generation (CAG) algorithm for processing large text inputs with AI models",
   "main": "dist/index.js",
@@ -13,6 +13,9 @@
     "format": "prettier --write \"src/**/*.ts\""
   },
   "keywords": [
+    "cag",
+    "cag-js",
+    "chunked-augmented-generation",
     "ai",
     "text-processing",
     "chunking",
@@ -49,10 +52,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/cag-algorithm.git"
+    "url": "git+https://github.com/vivekvells/cag.git"
   },
   "bugs": {
-    "url": "https://github.com/yourusername/cag-algorithm/issues"
+    "url": "https://github.com/vivekvells/cag/issues"
   },
-  "homepage": "https://github.com/yourusername/cag-algorithm#readme"
+  "homepage": "https://github.com/vivekvells/cag#readme"
 }
