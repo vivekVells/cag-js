@@ -30,7 +30,7 @@ CAG operates in two main modes:
 ## Installation
 
 ```bash
-npm install cag
+npm install cag-js
 ```
 
 ## Quick Start Example
@@ -118,7 +118,7 @@ npm init -y
 3. Link to your local CAG:
 
 ```bash
-npm link cag
+npm link cag-js
 ```
 
 4. Create a test file (index.ts):
