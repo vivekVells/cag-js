@@ -1,31 +1,54 @@
 # CAG (Chunked Augmented Generation)
 
-CAG is a TypeScript library that implements the Chunked Augmented Generation algorithm for efficiently processing large text inputs with AI language models. It automatically handles token limits and context windows by intelligently breaking down text into manageable chunks while preserving context coherence.
+CAG is a TypeScript library specifically designed to overcome context window limitations in browser-based AI models, with particular optimization for Chrome's built-in Gemini Nano implementation. It enables efficient processing of large text inputs by intelligently managing chunk boundaries while maintaining semantic coherence.
 
-## How It Works
+## Overview
 
-CAG operates in two main modes:
+CAG addresses the fundamental challenge of processing large inputs within browser-based AI models' restricted context windows. It employs sophisticated chunking strategies and browser-specific optimizations to extend the effective processing capacity while maintaining performance stability.
 
-1. **Sequential Processing**
+### Practical Example: Document Summarization
 
-   - Splits text into overlapping chunks
-   - Processes each chunk independently
-   - Combines results sequentially
-   - Ideal for parallel processing and maintaining text structure
+Imagine you have a 100-page research paper in your browser that you need to summarize. Without CAG, you'd hit context window limits trying to process it all at once. Here's how CAG handles it:
 
-2. **Recursive Processing**
-   - Splits text into overlapping chunks
-   - Processes chunks hierarchically
-   - Recursively combines and refines outputs
-   - Perfect for summarization and progressive refinement
+```typescript
+import { CAG } from "cag-js";
 
-## Features
+// Initialize CAG with settings optimized for document summarization
+const cag = new CAG({
+  chunkSize: 24576,  // About 6,144 tokens, optimal for Gemini Nano
+  chunkOverlap: 4096,  // Ensures context continuity between sections
+  iteration_limit: 3,   // Number of refinement passes
+  iteration_output_token_limit: 2048  // Target summary length
+}, "Summarize the following text section, focusing on key findings: {text}");
 
-- 🔄 Two Processing Modes: Sequential and Recursive
-- 📏 Configurable chunk sizes and overlap
-- ⚙️ Customizable iteration limits and output controls
-- 🔍 Built on LangChain's text splitters
-- 📚 Full TypeScript support
+// Your 100-page research paper as text
+const researchPaper = `[Your long research paper content...]`;
+
+// Generate a coherent summary
+try {
+  const summary = await cag.generate_recursive(researchPaper);
+  console.log("Research Paper Summary:", summary);
+} catch (error) {
+  console.error("Error generating summary:", error);
+}
+```
+
+What happens behind the scenes:
+
+1. CAG splits your 100-page paper into overlapping chunks that fit Gemini Nano's context window
+2. Each chunk is summarized while maintaining connections to surrounding content
+3. These summaries are combined and refined over multiple passes
+4. You get a coherent, well-structured summary of the entire paper, processed entirely in your browser
+
+## Key Features
+
+- 🔄 Dual Processing Modes: Sequential and Recursive Generation
+- 📏 Intelligent Chunk Management with Context Preservation
+- ⚙️ Browser-Optimized Resource Management
+- 🔍 Chrome Gemini Nano Integration
+- 📊 Comprehensive Performance Metrics
+- 🛡️ Privacy-Preserving Local Processing
+- 📚 Full TypeScript Support
 
 ## Installation
 
@@ -33,48 +56,115 @@ CAG operates in two main modes:
 npm install cag-js
 ```
 
-## Quick Start Example
+## Try it Out: CAG-JS Playground
+
+Want to see CAG in action before integrating it into your project? Check out the [CAG-JS Playground](https://github.com/vivekVells/cag-js-example) - an interactive environment where you can experiment with CAG's capabilities using Chrome's built-in Gemini Nano model.
+
+The playground provides:
+
+- 🎮 Live examples of content processing
+- 📝 Ready-to-use components
+- 🔍 Interactive testing environment
+- 💡 Implementation examples
+
+To get started with the playground:
+
+1. Install Chrome Canary
+2. Enable Gemini Nano support in `chrome://flags`:
+   - Enable "Prompt API for Gemini Nano"
+   - Enable "Enables optimization guide on device"
+3. Clone and run the playground:
+
+   ```bash
+   git clone https://github.com/vivekVells/cag-js-example
+   cd cag-js-example
+   npm install
+   npm run dev
+   ```
+
+## Usage
+
+### Basic Implementation
 
 ```typescript
-import { CAG } from "cag";
+import { CAG } from "cag-js";
 
-// Initialize CAG
-const cag = new CAG(
-  {
-    chunkSize: 1000, // Characters per chunk
-    chunkOverlap: 200, // Overlap between chunks
-    iteration_limit: 5, // Max recursive iterations
-    iteration_output_token_limit: 2000, // Target output length
-  },
-  "Summarize the following text: {text}"
-);
+const cag = new CAG({
+  chunkSize: 24576,  // Optimized for Chrome's Gemini Nano context window
+  chunkOverlap: 4096,
+  iteration_limit: 5,
+  iteration_output_token_limit: 6144  // Gemini Nano token limit
+}, "Process the following text: {text}");
 
-// Process text sequentially
-const text = "Your long text here...";
-const summary = await cag.generate_sequential(text);
+// Sequential Processing
+const result = await cag.generate_sequential(longText);
 
-// Or process recursively
-const recursiveSummary = await cag.generate_recursive(text);
+// Recursive Processing
+const recursiveResult = await cag.generate_recursive(longText);
 ```
 
-## Configuration Options
+### Configuration
 
 ```typescript
 interface CAGConfig {
-  chunkSize: number; // Number of characters per chunk
-  chunkOverlap: number; // Characters to overlap between chunks
-  iteration_limit?: number; // Maximum recursive iterations
-  iteration_output_token_limit?: number; // Target length for output
+  chunkSize: number;         // Characters per chunk (recommended: 24576 for Gemini Nano)
+  chunkOverlap: number;      // Overlap between chunks
+  iteration_limit?: number;  // Maximum recursive iterations
+  iteration_output_token_limit?: number;  // Target output length in tokens
 }
 ```
 
-## Development Setup
+## Processing Modes
+
+### Sequential Generation
+
+- Processes chunks independently in sequence
+- Maintains document structure
+- Ideal for parallel processing
+- Best for content where chunks can be processed independently
+
+### Recursive Generation
+
+- Hierarchical chunk processing
+- Progressive refinement of output
+- Maintains semantic coherence across chunks
+- Optimal for summarization and content transformation
+
+## Performance Considerations
+
+CAG's performance has been extensively benchmarked across different content lengths:
+
+- Small (CWQ ≤ 1): Optimal for content within single context window
+- Medium (1 < CWQ ≤ 2): Efficient dual-window processing
+- Large (2 < CWQ ≤ 3): Balanced performance with chunk coordination
+- Extra Large (3 < CWQ ≤ 4): Sophisticated chunk management
+- Humongous (CWQ > 4): Advanced resource optimization
+
+Where CWQ (Context Window Quotient) = Content Length / (Base Token Window × Character-to-Token Ratio)
+
+## Browser Requirements
+
+- Chrome with Gemini Nano support
+- Minimum 4GB available memory
+- WebAssembly support
+- Hardware acceleration recommended
+
+## Use Cases
+
+- Document Summarization
+- Content Expansion
+- Technical Documentation Processing
+- Large-Scale Text Analysis
+- Knowledge Base Processing
+- Multi-Stage Content Refinement
+
+## Development
 
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/yourusername/cag.git
-cd cag
+git clone https://github.com/yourusername/cag-js.git
+cd cag-js
 ```
 
 2. Install dependencies:
@@ -83,138 +173,66 @@ cd cag
 npm install
 ```
 
-3. Build the project:
+3. Build:
 
 ```bash
 npm run build
 ```
 
-4. Run tests:
+4. Test:
 
 ```bash
 npm test
 ```
 
-## Local Testing
+## Error Handling
 
-To test CAG in a local project:
+CAG implements robust error handling for:
 
-1. Link the package locally:
-
-```bash
-# In the CAG package directory
-npm run build
-npm link
-```
-
-2. Create a test project:
-
-```bash
-mkdir cag-test
-cd cag-test
-npm init -y
-```
-
-3. Link to your local CAG:
-
-```bash
-npm link cag-js
-```
-
-4. Create a test file (index.ts):
-
-```typescript
-import { CAG } from "cag";
-
-async function main() {
-  const cag = new CAG(
-    {
-      chunkSize: 1000,
-      chunkOverlap: 200,
-      iteration_limit: 3,
-    },
-    "Summarize: {text}"
-  );
-
-  const result = await cag.generate_sequential("Your long text here...");
-
-  console.log(result);
-}
-
-main().catch(console.error);
-```
-
-## Usage Examples
-
-### Basic Summarization
-
-```typescript
-import { CAG } from "cag";
-
-const cag = new CAG(
-  {
-    chunkSize: 1000,
-    chunkOverlap: 200,
-  },
-  "Summarize this text briefly: {text}"
-);
-
-const summary = await cag.generate_sequential(longText);
-```
-
-### Recursive Processing for Long Documents
-
-```typescript
-import { CAG } from "cag";
-
-const cag = new CAG(
-  {
-    chunkSize: 2000,
-    chunkOverlap: 200,
-    iteration_limit: 3,
-    iteration_output_token_limit: 1000,
-  },
-  "Extract key points from this text: {text}"
-);
-
-const analysis = await cag.generate_recursive(longDocument);
-```
-
-## Browser Compatibility
-
-CAG requires a browser environment with `window.ai` available. Ensure your environment has the necessary AI capabilities before using the library.
-
-## Requirements
-
-- Browser environment with window.ai
-- Node.js ≥ 14.0.0
-- TypeScript ≥ 4.0.0 (for development)
+- Browser resource constraints
+- Context window limitations
+- Chunk processing failures
+- Memory management issues
 
 ## Contributing
 
 1. Fork the repository
-2. Create your feature branch: `git checkout -b feature/amazing-feature`
-3. Commit your changes: `git commit -m 'Add amazing feature'`
-4. Push to the branch: `git push origin feature/amazing-feature`
-5. Open a Pull Request
+2. Create feature branch: `git checkout -b feature/enhancement`
+3. Commit changes: `git commit -m 'Add enhancement'`
+4. Push: `git push origin feature/enhancement`
+5. Submit Pull Request
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License - see [LICENSE](LICENSE) file
 
+<!-- 
 ## Authors
 
-- Vivek Vellaiyappn Surulimuthu
+- Vivek Vellaiyappan Surulimuthu
+- Aditya Karnam Gururaj Rao
+
+## Citations
+
+When using CAG in academic work, please cite:
+
+```bibtex
+@article{surulimuthu2024cag,
+  title={CAG: Chunked Augmented Generation for Google Chrome's Built-in Gemini Nano},
+  author={Surulimuthu, Vivek Vellaiyappan and Rao, Aditya Karnam Gururaj},
+  year={2024}
+}
+``` -->
 
 ## Support
 
-- Create an issue in the [GitHub repository](https://github.com/yourusername/cag/issues)
-- See the [documentation](https://github.com/yourusername/cag#readme) for updates
+- [GitHub Issues](https://github.com/yourusername/cag-js/issues)
+- [Documentation](https://github.com/yourusername/cag-js#readme)
 
 ## Acknowledgments
 
 Built with:
 
-- [LangChain](https://js.langchain.com/docs/) text splitters
+- Chrome's Gemini Nano Implementation
+- LangChain Text Splitters
 - TypeScript
-- window.ai interface
